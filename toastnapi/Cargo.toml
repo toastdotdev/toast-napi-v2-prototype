@@ -1,0 +1,44 @@
+[package]
+edition = "2021"
+name = "toastdotdev_toastnapi"
+version = "0.0.0"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+futures = "0.3.18"
+miette = { version = "3.2.0", features = ["fancy"] }
+# Default enable napi4 feature, see https://nodejs.org/api/n-api.html#node-api-version-matrix
+napi = { version = "2.0.0-alpha.7", default-features = false, features = [
+    "napi4",
+    "async",
+] }
+napi-derive = "2.0.0-alpha.8"
+salsa = "0.16.1"
+serde = "1.0.130"
+serde_json = "1.0.72"
+string_cache = "0.8.2"
+swc = { version = "0.88.2" }
+swc_ecmascript = { version = "0.88.3", features = [
+    "parser",
+    "visit",
+    "transforms",
+] }
+# swc_atoms = "0.2.9"
+swc_common = { version = "0.14.7", features = ["tty-emitter"] }
+# swc_ecma_ast = "0.58.1"
+# swc_ecma_parser = "0.78.10"
+# swc_ecma_transforms = "0.95.2"
+# swc_ecma_visit = "0.44.0"
+tokio = { version = "1.14.0", features = ["parking_lot"] }
+tokio-stream = "0.1.8"
+tracing = "0.1.29"
+walkdir = "2.3.2"
+
+
+[build-dependencies]
+napi-build = "1.1.2"
+
+[profile.release]
+lto = true
