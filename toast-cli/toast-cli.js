@@ -7,6 +7,7 @@ import {
 import cac from "cac";
 import path from "path";
 import { performance } from "perf_hooks";
+import { renderAll } from "./src/render.js";
 
 const PERF = !!process.env.DEBUG_PERF;
 const cli = cac();
@@ -39,10 +40,11 @@ cli
     PERF && performance.mark("done-source-data");
 
     doneSourcingData();
-    let result = await things;
+    let urls = await things;
     PERF && performance.mark("awaited-things");
     // setDataForSlug;
-    console.log({ result });
+    console.log({ urls });
+    await renderAll(inputPath, outputPath, urls);
     console.log(`Toast ran in: ${Math.floor(performance.now() - startTime)}ms`);
     PERF &&
       console.log(
