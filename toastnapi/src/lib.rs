@@ -1,8 +1,10 @@
 #![deny(clippy::all)]
 
 use esinstall::ImportMap;
+use fs_extra::dir::{copy, CopyOptions};
 use futures::stream::StreamExt;
 use miette::{IntoDiagnostic, WrapErr};
+use serde_json::Value;
 use sources::{Source, SourceKind};
 use std::{
   collections::HashMap,
@@ -23,7 +25,7 @@ mod sources;
 mod swc_import_map_rewrite;
 mod swc_ops;
 
-use internal_api::{Event, SetDataForSlug};
+use internal_api::{Event, ModuleSpec, SetDataForSlug};
 
 #[macro_use]
 extern crate napi_derive;
@@ -119,6 +121,7 @@ async fn incremental_internal(
 esinstall should create this directory. It looks like it either didn't run or failed to create the directory.",
       &import_map_filepath.display()
     ))?;
+
     esinstall::parse_import_map(&contents)
     .into_diagnostic().wrap_err(
       format!(
@@ -138,14 +141,83 @@ esinstall should create this directory. It looks like it either didn't run or fa
   )?;
   let mut stream = UnboundedReceiverStream::new(rx);
 
-  let mut urls = vec![];
+  // let mut urls = vec![];
+  let mut set_data_events = vec![];
   while let Some(msg) = stream.next().await {
     match msg {
       Event::Set(mut info) => {
-        // compile something
         info.normalize();
-        urls.push(info.slug.clone());
-        // dbg!(info);
+        set_data_events.push(info.clone());
+        // urls.push(info.slug.clone());
+
+        let slug_filepath =
+          info.slug_as_relative_filepath();
+        let mut output_path_js =
+          info.slug_as_relative_filepath();
+        output_path_js.set_extension("js");
+
+        // if there is a component, set the source in the incremental cache
+        // if it's a filepath, we need to figure out how to handle it. I think
+        // that we just need to make sure the filepaths are relative to the project
+        // root so that the incremental cache ids for the sources line up when
+        // we go to render it out or whatnot
+        match &info.component {
+          None => {}
+          Some(ModuleSpec::NoModule) => {
+            panic!("no-module is not implemented for components yet")
+          }
+          Some(ModuleSpec::File { path: _ }) => {
+            panic!("Filepaths are not implemented yet")
+          }
+          Some(ModuleSpec::Source { code }) => {
+            cache.set_source(
+              &info.slug,
+              Source {
+                source: code.to_string(),
+                kind: SourceKind::Raw,
+              },
+            );
+            compile_js(
+              &info.slug,
+              &OutputFile {
+                dest: output_path_js.display().to_string(),
+              },
+              &PathBuf::from(&output_dir),
+              &import_map,
+              &mut cache,
+              &tmp_dir,
+            )?;
+          }
+        }
+        match &info.data {
+          Some(Value::Null) => {
+            // if null, do nothing for now. In the future null
+            // will cause us to overlay a tombstone on this layer
+            // similar to an overlay filesystem, resulting in no data
+            // for the page.
+          }
+          Some(v) => {
+            // we write the files out to disk here today,
+            // we should probably put them in the incremental cache first
+            // so that files can depend on them via derived queries
+            let mut json_path = PathBuf::from(&output_dir)
+              .join(slug_filepath);
+            json_path.set_extension("json");
+            std::fs::create_dir_all(
+              &json_path.parent().unwrap(),
+            )
+            .into_diagnostic()?;
+            fs::write(json_path, v.to_string())
+              .into_diagnostic()?
+          }
+          None => {}
+        }
+        match &info.wrapper {
+          Some(_) => {
+            panic!("set.wrapper is not implemented yet");
+          }
+          None => {}
+        }
       }
       Event::End => {
         break;
@@ -154,7 +226,7 @@ esinstall should create this directory. It looks like it either didn't run or fa
   }
 
   let files_by_source_id = compile_src_files(
-    &PathBuf::from(input_dir),
+    &PathBuf::from(&input_dir),
     &PathBuf::from(output_dir),
     &import_map,
     &mut cache,
@@ -166,13 +238,58 @@ esinstall should create this directory. It looks like it either didn't run or fa
     .map(|(_, output_file)| output_file.dest.clone())
     .collect::<Vec<String>>();
 
-  // let _data_from_user = source_data(
-  //   &project_root_dir.join("toast.js"),
-  //   npm_bin_dir.clone(),
-  //   create_pages_pb.clone(),
-  // )
-  // .await?;
-  Ok(urls)
+  // todo area
+
+  let remote_file_list: Vec<String> = set_data_events
+    .iter()
+    .filter_map(|set| {
+      match (&set.component, &set.prerender) {
+        // if we have a component set, and we are supposed to prerender this component
+        // into html, then keep it for later processing.
+        (Some(_), true) => {
+          let mut js_filepath =
+            set.slug_as_relative_filepath();
+          js_filepath.set_extension("js");
+          Some(js_filepath.display().to_string())
+        }
+        _ => None,
+      }
+    })
+    .collect();
+  let mut list: Vec<String> = file_list
+    .clone()
+    .iter()
+    .filter(|f| f.starts_with("src/pages"))
+    .cloned()
+    .collect();
+  list.extend(remote_file_list);
+
+  // # copy static dir to public dir
+  //
+  // * copy_inside seems to be for copying the whole `static` folder to
+  //   `public/static`.
+  // * `content_only` seems to be for copying `static/*` into `public/`
+  let options = CopyOptions {
+    copy_inside: false,
+    overwrite: true,
+    content_only: true,
+    ..CopyOptions::new()
+  };
+  let static_dir = PathBuf::from(&input_dir).join("static");
+  let public_dir = PathBuf::from(&input_dir).join("public");
+  if static_dir.exists() && public_dir.exists() {
+    copy(static_dir, public_dir, &options)
+      .into_diagnostic()?;
+  }
+
+  // render_to_html(
+  //   tmp_dir.into_os_string().into_string().unwrap(),
+  //   output_dir.into_os_string().into_string().unwrap(),
+  //   list,
+  //   npm_bin_dir,
+  //   render_pb.clone(),
+  // )?;
+  Ok(list)
 }
 
 // #[instrument(skip(cache))]
