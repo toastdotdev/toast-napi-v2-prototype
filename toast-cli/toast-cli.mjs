@@ -1,4 +1,4 @@
-#!/usr/bin/env node
+#!/usr/bin/env node --experimental-loader toast-cli/src/loader.mjs
 import {
   incremental,
   setDataForSlug,
@@ -7,7 +7,7 @@ import {
 import cac from "cac";
 import path from "path";
 import { performance } from "perf_hooks";
-import { renderAll } from "./src/render.js";
+import { renderAll } from "./src/render.mjs";
 
 const PERF = !!process.env.DEBUG_PERF;
 const cli = cac();

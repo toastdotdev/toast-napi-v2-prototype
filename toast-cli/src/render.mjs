@@ -1,8 +1,8 @@
 import path from "path";
 import { fileURLToPath } from "url";
 import { promises as fs, existsSync } from "fs";
-import "./module-aliases.js";
-import { render } from "./page-renderer-pre.js";
+import "./module-aliases.mjs";
+import { render } from "./page-renderer-pre.mjs";
 
 // loader doesn't show up in argv
 // const [_node, _binStr, srcDir, outputDir, ...args] = process.argv;
@@ -11,7 +11,7 @@ export async function renderAll(inputDir, outputDir, files) {
   // require pageWrapper
   let pageWrapper;
   const pageWrapperExists = existsSync(
-    path.join(inputDir, "src", "page-wrapper.js")
+    path.join(inputDir, ".tmp", "src", "page-wrapper.js")
   );
 
   // Only try to import the page wrapper if it exists, otherwise ignore
@@ -26,6 +26,7 @@ export async function renderAll(inputDir, outputDir, files) {
         ...path
           .relative(path.dirname(fileURLToPath(import.meta.url)), inputDir)
           .split(path.sep),
+        ".tmp",
         "src",
         "page-wrapper.js"
       );
@@ -40,7 +41,7 @@ export async function renderAll(inputDir, outputDir, files) {
   // render html
   return Promise.all(
     files.map(async (file) => {
-      const nodeComponent = await import(path.resolve(inputDir, file));
+      const nodeComponent = await import(path.resolve(inputDir, ".tmp", file));
       let data;
       try {
         data = await fs.readFile(

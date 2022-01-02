@@ -1,4 +1,4 @@
-import "./module-aliases.js";
+import "./module-aliases.mjs";
 const moduleAliases = {
   react: "preact/compat",
   "react-dom": "preact/compat",

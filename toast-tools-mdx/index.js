@@ -1,4 +1,4 @@
-import mdx from "@mdx-js/mdx";
+import { compile } from "@mdx-js/mdx";
 import { promises as fs } from "fs";
 import globby from "globby";
 import path from "path";
@@ -28,7 +28,7 @@ export const fetchMdxFromDisk = async ({ directory, extensions = ["mdx"] }) => {
   return files;
 };
 
-export const processMdx = async (
+const processMdx = async (
   content,
   {
     filepath,
@@ -111,10 +111,12 @@ export const sourceMdx = async ({
     files.map(async ({ filename, file, source, id }) => {
       let result;
       try {
-        result = await processMdx(file || source, {
-          filepath: filename,
-          namedExports,
-        });
+        await compile(file || source);
+        throw new Error("temp");
+        // result = await processMdx(file || source, {
+        //   filepath: filename,
+        //   namedExports,
+        // });
       } catch (e) {
         let matchString = "";
         try {

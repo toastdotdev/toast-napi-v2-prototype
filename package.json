@@ -8,11 +8,5 @@
   "scripts": {
     "preinstall": "npx npm-force-resolutions",
     "toast-cli": "toast-cli"
-  },
-  "dependencies": {
-    "@mdx-js/mdx": "2.0.0-next.9"
-  },
-  "resolutions": {
-    "@mdx-js/mdx": "2.0.0-next.9"
   }
 }
