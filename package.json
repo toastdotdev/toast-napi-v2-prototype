@@ -6,7 +6,6 @@
     "test-site"
   ],
   "scripts": {
-    "build": "npm run build --workspace toastnapi",
     "preinstall": "npx npm-force-resolutions",
     "toast-cli": "toast-cli"
   }
