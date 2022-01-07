@@ -66,6 +66,7 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: generate-lockfile
+          args: --manifest-path toastnapi/Cargo.toml
       - name: Cache cargo registry
         uses: actions/cache@v2
         with:
