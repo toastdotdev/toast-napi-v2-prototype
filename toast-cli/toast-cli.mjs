@@ -1,4 +1,4 @@
-#!/usr/bin/env node --experimental-loader toast-cli/src/loader.mjs
+#!/usr/bin/env node --experimental-loader @toastdotdev/cli-napi/src/loader.mjs
 import {
   incremental,
   setDataForSlug,

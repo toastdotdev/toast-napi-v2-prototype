@@ -1,6 +1,6 @@
 {
-  "name": "toast-cli",
-  "version": "1.0.0",
+  "name": "@toastdotdev/cli-napi",
+  "version": "0.0.2",
   "description": "",
   "main": "index.js",
   "type": "module",
