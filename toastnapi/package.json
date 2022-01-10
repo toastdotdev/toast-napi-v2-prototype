@@ -5,11 +5,15 @@
   "types": "index.d.ts",
   "napi": {
     "name": "toastnapi",
-    "triples": {}
+    "triples": {
+      "additional": [
+        "aarch64-apple-darwin"
+      ]
+    }
   },
   "license": "MIT",
   "devDependencies": {
-    "@napi-rs/cli": "^2.2.0"
+    "@napi-rs/cli": "^2.3.0"
   },
   "engines": {
     "node": ">= 10"
