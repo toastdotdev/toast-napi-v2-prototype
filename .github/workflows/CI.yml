@@ -38,6 +38,7 @@ jobs:
             architecture: x64
           - host: macos-11
             target: aarch64-apple-darwin
+            architecture: arm64
             build: |
               npm run build --target=aarch64-apple-darwin
               strip -x *.node
