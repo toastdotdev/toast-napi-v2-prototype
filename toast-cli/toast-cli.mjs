@@ -1,4 +1,4 @@
-#!/usr/bin/env node --experimental-loader @toastdotdev/cli-napi/src/loader.mjs
+#!/usr/bin/env -S NODE_OPTIONS='--experimental-loader="@toastdotdev/cli-napi/src/loader.mjs"' node
 import {
   incremental,
   setDataForSlug,
