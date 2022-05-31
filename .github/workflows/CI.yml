@@ -85,11 +85,11 @@ jobs:
             .cargo-cache/git/db/
             target/
           key: ${{ matrix.settings.target }}-cargo-${{ matrix.settings.host }}
-      - name: Cache NPM dependencies
-        uses: actions/cache@v3
-        with:
-          path: node_modules
-          key: npm-cache-build-${{ matrix.settings.target }}-node@16
+      # - name: Cache NPM dependencies
+      #   uses: actions/cache@v3
+      #   with:
+      #     path: node_modules
+      #     key: npm-cache-build-${{ matrix.settings.target }}-node@16
       - name: Setup toolchain
         run: ${{ matrix.settings.setup }}
         if: ${{ matrix.settings.setup }}
@@ -136,11 +136,11 @@ jobs:
           node-version: ${{ matrix.node }}
           check-latest: true
           cache: yarn
-      - name: Cache NPM dependencies
-        uses: actions/cache@v3
-        with:
-          path: node_modules
-          key: npm-cache-test-${{ matrix.settings.target }}-${{ matrix.node }}-${{ hashFiles('yarn.lock') }}
+      # - name: Cache NPM dependencies
+      #   uses: actions/cache@v3
+      #   with:
+      #     path: node_modules
+      #     key: npm-cache-test-${{ matrix.settings.target }}-${{ matrix.node }}-${{ hashFiles('yarn.lock') }}
       - name: Install dependencies
         run: yarn install --ignore-scripts --frozen-lockfile --registry https://registry.npmjs.org --network-timeout 300000
       - name: Download artifacts
@@ -173,11 +173,11 @@ jobs:
           node-version: ${{ matrix.node }}
           check-latest: true
           cache: yarn
-      - name: Cache NPM dependencies
-        uses: actions/cache@v3
-        with:
-          path: node_modules
-          key: npm-cache-test-linux-x64-gnu-${{ matrix.node }}
+      # - name: Cache NPM dependencies
+      #   uses: actions/cache@v3
+      #   with:
+      #     path: node_modules
+      #     key: npm-cache-test-linux-x64-gnu-${{ matrix.node }}
       - name: Install dependencies
         run: yarn install --ignore-scripts --frozen-lockfile --registry https://registry.npmjs.org --network-timeout 300000
       - name: Download artifacts
@@ -204,11 +204,11 @@ jobs:
           node-version: 16
           check-latest: true
           cache: yarn
-      - name: Cache NPM dependencies
-        uses: actions/cache@v3
-        with:
-          path: node_modules
-          key: npm-cache-ubuntu-latest-publish
+      # - name: Cache NPM dependencies
+      #   uses: actions/cache@v3
+      #   with:
+      #     path: node_modules
+      #     key: npm-cache-ubuntu-latest-publish
       - name: Install dependencies
         run: yarn install --ignore-scripts --frozen-lockfile --registry https://registry.npmjs.org --network-timeout 300000
       - name: Download all artifacts
