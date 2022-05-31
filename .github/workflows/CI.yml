@@ -63,7 +63,7 @@ jobs:
         with:
           node-version: 16
           check-latest: true
-          cache: yarn
+          # cache: yarn
           architecture: ${{ matrix.settings.architecture }}
       - name: Install
         uses: actions-rs/toolchain@v1
@@ -124,7 +124,6 @@ jobs:
           - host: windows-latest
             target: x86_64-pc-windows-msvc
         node:
-          - "14"
           - "16"
           - "18"
     runs-on: ${{ matrix.settings.host }}
@@ -135,7 +134,7 @@ jobs:
         with:
           node-version: ${{ matrix.node }}
           check-latest: true
-          cache: yarn
+          # cache: yarn
       # - name: Cache NPM dependencies
       #   uses: actions/cache@v3
       #   with:
@@ -161,7 +160,6 @@ jobs:
       fail-fast: false
       matrix:
         node:
-          - "14"
           - "16"
           - "18"
     runs-on: ubuntu-latest
@@ -172,7 +170,7 @@ jobs:
         with:
           node-version: ${{ matrix.node }}
           check-latest: true
-          cache: yarn
+          # cache: yarn
       # - name: Cache NPM dependencies
       #   uses: actions/cache@v3
       #   with:
@@ -203,7 +201,7 @@ jobs:
         with:
           node-version: 16
           check-latest: true
-          cache: yarn
+          # cache: yarn
       # - name: Cache NPM dependencies
       #   uses: actions/cache@v3
       #   with:
