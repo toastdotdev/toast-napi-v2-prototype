@@ -107,6 +107,9 @@ jobs:
         run: ${{ matrix.settings.build }}
         if: ${{ !matrix.settings.docker }}
         shell: bash
+      - name: Build
+        run: ls -R .
+        shell: bash
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
